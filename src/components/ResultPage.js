@@ -51,10 +51,9 @@ const ResultPage = () => {
     };
 
     results.questions.forEach((question, index) => {
-      const bloomsCategory = question.bloomsCategory || 'Understand'; // Default to 'Understand' if not specified
+      const bloomsCategory = question.bloomsCategory || 'Understand';
       analysis[bloomsCategory].total += 1;
       
-      // Check if the answer is correct
       if (results.answers[index] && results.answers[index].answer === question.correctAnswer) {
         analysis[bloomsCategory].correct += 1;
       }
@@ -105,17 +104,17 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
     labels: Object.keys(bloomsAnalysis),
     datasets: [
       {
-        label: 'Total Questions',
-        data: Object.values(bloomsAnalysis).map(category => category.total),
-        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Light blue
-        borderColor: 'rgba(54, 162, 235, 1)',
+        label: 'Correct Answers',
+        data: Object.values(bloomsAnalysis).map(category => category.correct),
+        backgroundColor: 'rgba(75, 192, 192, 1)', // Green for correct answers
+        borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
-        label: 'Correct Answers',
-        data: Object.values(bloomsAnalysis).map(category => category.correct),
-        backgroundColor: 'rgba(255, 99, 132, 1)', // Pink/Red
-        borderColor: 'rgba(255, 99, 132, 1)',
+        label: 'Incorrect Answers',
+        data: Object.values(bloomsAnalysis).map(category => category.total - category.correct),
+        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for incorrect answers
+        borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
       },
     ],
@@ -132,18 +131,39 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         display: true,
         text: "Bloom's Taxonomy Analysis",
       },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.dataset.label || '';
+            const value = context.parsed.y;
+            const datasetIndex = context.datasetIndex;
+            const totalQuestions = bloomsAnalysis[context.label].total;
+            
+            if (datasetIndex === 0) {
+              return `Correct: ${value} out of ${totalQuestions}`;
+            } else {
+              return `Incorrect: ${value} out of ${totalQuestions}`;
+            }
+          }
+        }
+      }
     },
     scales: {
       x: {
-        stacked: false, // Ensure bars are side by side
+        stacked: true,
       },
       y: {
+        stacked: true,
         beginAtZero: true,
         ticks: {
           stepSize: 1
+        },
+        afterDataLimits: (scale) => {
+          scale.max = scale.max * 1.1; // Add 10% space above the longest bar
         }
       }
-    }
+    },
+    barThickness: 60, // Adjust this value to change bar width
   };
 
   return (
@@ -191,7 +211,7 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         </div>
         {showSpiderChart && (
           <ErrorBoundary fallback={<div>There was an error loading the competency chart.</div>}>
-            <div style={{ width: '60%', margin: '20px auto 0' }}>
+            <div style={{ width: '95%', margin: '10px auto 0' }}>
               <TechnologySpiderChart technology={quizResults.candidateInfo.technology} />
             </div>
           </ErrorBoundary>
