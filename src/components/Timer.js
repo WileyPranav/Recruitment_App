@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
-const Timer = ({ duration, onTimeUp }) => {
-  const [timeLeft, setTimeLeft] = useState(duration);
+const Timer = ({ initialTime, onTimeUp }) => {
+  const [time, setTime] = useState(initialTime);
 
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timerId);
-    } else {
+    if (time <= 0) {
       onTimeUp();
+      return;
     }
-  }, [timeLeft, onTimeUp]);
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+    const timer = setInterval(() => {
+      setTime((prevTime) => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [time, onTimeUp]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
 
   return (
-    <div className="text-2xl font-bold">
-      Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+    <div className="text-xl font-bold mb-4">
+      Time Remaining: {formatTime(time)}
     </div>
   );
 };

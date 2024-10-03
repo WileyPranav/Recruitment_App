@@ -54,13 +54,100 @@ const ResultPage = () => {
       const bloomsCategory = question.bloomsCategory || 'Understand';
       analysis[bloomsCategory].total += 1;
       
-      if (results.answers[index] && results.answers[index].answer === question.correctAnswer) {
+      if (results.answers[index] === question.correctAnswer) {
         analysis[bloomsCategory].correct += 1;
       }
     });
 
-    console.log('Blooms Analysis:', analysis);
     setBloomsAnalysis(analysis);
+  };
+
+  const calculateCompetencies = (questions, answers, technology) => {
+    const competencies = getTechnologyCompetencies(technology);
+    const totalQuestions = {};
+    const correctAnswers = {};
+    
+    Object.keys(competencies).forEach(key => {
+      totalQuestions[key] = 0;
+      correctAnswers[key] = 0;
+    });
+    
+    questions.forEach((question, index) => {
+      const category = question.category || 'General';
+      if (competencies.hasOwnProperty(category)) {
+        totalQuestions[category]++;
+        if (answers[index] === question.correctAnswer) {
+          correctAnswers[category]++;
+        }
+      }
+    });
+    
+    Object.keys(competencies).forEach(key => {
+      competencies[key] = totalQuestions[key] > 0 
+        ? (correctAnswers[key] / totalQuestions[key]) * 5 
+        : 0;
+    });
+    
+    return competencies;
+  };
+
+  const getTechnologyCompetencies = (technology) => {
+    switch (technology) {
+      case 'Java Full Stack':
+        return {
+          'Core Java': 0,
+          'Advanced Java': 0,
+          'Spring Framework': 0,
+          'RESTful APIs': 0,
+          'Database Management': 0,
+          'Web Development': 0
+        };
+      case 'Python':
+        return {
+          'Core Python': 0,
+          'Data Structures': 0,
+          'Web Frameworks': 0,
+          'Data Analysis': 0,
+          'Machine Learning': 0,
+          'API Development': 0
+        };
+      case 'Dev-Ops':
+        return {
+          'CI/CD': 0,
+          'Containerization': 0,
+          'Cloud Platforms': 0,
+          'Infrastructure as Code': 0,
+          'Monitoring and Logging': 0,
+          'Security': 0
+        };
+      case 'SRE':
+        return {
+          'System Design': 0,
+          'Reliability Engineering': 0,
+          'Performance Optimization': 0,
+          'Incident Management': 0,
+          'Automation': 0,
+          'Capacity Planning': 0
+        };
+      case 'AI':
+        return {
+          'Machine Learning': 0,
+          'Deep Learning': 0,
+          'Natural Language Processing': 0,
+          'Computer Vision': 0,
+          'Data Preprocessing': 0,
+          'Model Deployment': 0
+        };
+      default:
+        return {
+          'General Knowledge': 0,
+          'Problem Solving': 0,
+          'Coding Skills': 0,
+          'System Design': 0,
+          'Best Practices': 0,
+          'Tool Proficiency': 0
+        };
+    }
   };
 
   if (!quizResults) {
@@ -106,17 +193,17 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
       {
         label: 'Correct Answers',
         data: Object.values(bloomsAnalysis).map(category => category.correct),
-        backgroundColor: 'rgba(75, 192, 192, 1)', // Green for correct answers
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
         label: 'Incorrect Answers',
         data: Object.values(bloomsAnalysis).map(category => category.total - category.correct),
-        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for incorrect answers
-        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+        borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
-      },
+      }
     ],
   };
 
@@ -131,22 +218,6 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         display: true,
         text: "Bloom's Taxonomy Analysis",
       },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y;
-            const datasetIndex = context.datasetIndex;
-            const totalQuestions = bloomsAnalysis[context.label].total;
-            
-            if (datasetIndex === 0) {
-              return `Correct: ${value} out of ${totalQuestions}`;
-            } else {
-              return `Incorrect: ${value} out of ${totalQuestions}`;
-            }
-          }
-        }
-      }
     },
     scales: {
       x: {
@@ -157,13 +228,9 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         beginAtZero: true,
         ticks: {
           stepSize: 1
-        },
-        afterDataLimits: (scale) => {
-          scale.max = scale.max * 1.1; // Add 10% space above the longest bar
         }
       }
-    },
-    barThickness: 60, // Adjust this value to change bar width
+    }
   };
 
   return (
@@ -179,9 +246,9 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
           <p>Candidate Name: {quizResults.candidateInfo?.name || 'N/A'}</p>
           <p>Technology: {quizResults.candidateInfo?.technology || 'N/A'}</p>
           <p>Correct Answers: {quizResults.result?.score || 0}</p>
-          <p>Incorrect Answers: {(quizResults.result?.totalQuestions || 0) - (quizResults.result?.score || 0)}</p>
-          <p>Total Questions: {quizResults.result?.totalQuestions || 0}</p>
-          <p>Score Percentage: {quizResults.result?.percentage?.toFixed(2) || 0}%</p>
+          <p>Incorrect Answers: {25 - (quizResults.result?.score || 0)}</p>
+          <p>Total Questions: 25</p>
+          <p>Score Percentage: {((quizResults.result?.score || 0) / 25 * 100).toFixed(2)}%</p>
         </div>
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-2">Bloom's Taxonomy Analysis</h3>
@@ -212,7 +279,14 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         {showSpiderChart && (
           <ErrorBoundary fallback={<div>There was an error loading the competency chart.</div>}>
             <div style={{ width: '95%', margin: '10px auto 0' }}>
-              <TechnologySpiderChart technology={quizResults.candidateInfo.technology} />
+              <TechnologySpiderChart 
+                technology={quizResults.candidateInfo.technology} 
+                competencies={calculateCompetencies(
+                  quizResults.questions, 
+                  quizResults.answers, 
+                  quizResults.candidateInfo.technology
+                )}
+              />
             </div>
           </ErrorBoundary>
         )}

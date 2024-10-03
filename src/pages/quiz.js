@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/QuestionDisplay';
-import { generateQuestions, dummyQuestions } from '../utils/api';
+import ReviewPage from '../components/ReviewPage';
+import { generateQuestions } from '../utils/api';
 import Layout from '../components/Layout';
 const { saveData } = require('../backend/dataHandler');
 
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false); // {{ Add state to track readiness }}
+  const [isReady, setIsReady] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,47 +24,86 @@ const Quiz = () => {
           navigate('/recruitment');
           return;
         }
-       // const generatedQuestions =  dummyQuestions();
-        const generatedQuestions = await generateQuestions(candidateData.technology, 25); // {{ Ensure 25 questions }}
+        const generatedQuestions = await generateQuestions(candidateData.technology, 25);
         setQuestions(generatedQuestions);
-
-        const questionData = {
-          candidateName: candidateData.name,
-          technology: candidateData.technology,
-          questions: generatedQuestions
-        };
-        await saveData(`candidate_${candidateData.name}_questions`, questionData);
+        setAnswers(new Array(generatedQuestions.length).fill(null));
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching questions:', error);
         setIsLoading(false);
-        // {{ Optionally, set an error state here to display an error message }}
       }
     };
     fetchQuestions();
   }, [navigate]);
 
   const handleStartQuiz = () => {
-    setIsReady(true); // {{ Set readiness to true when Start Quiz is clicked }}
+    setIsReady(true);
   };
 
-  return (
-    <Layout>
-    <div className="container mx-auto px-4 py-8">
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center h-screen">
-          <div className="loader mb-4"></div>
-          <div className="h-16 overflow-hidden">
-            <div className="animate-scroll">
-              <p className="mb-4">Mthree: Empowering talent, driving innovation.</p>
-              <p className="mb-4">Join the future of finance technology with Mthree.</p>
-              <p className="mb-4">Mthree: Where your career takes flight.</p>
-              <p className="mb-4">Transform your potential into performance with Mthree.</p>
-              <p className="mb-4">Mthree: Bridging the gap between education and industry.</p>
-            </div>
-          </div>
+  const handleAnswer = (answer) => {
+    const newAnswers = [...answers];
+    newAnswers[currentQuestionIndex] = answer;
+    setAnswers(newAnswers);
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setIsReviewing(true);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  const handleReview = () => {
+    setIsReviewing(true);
+  };
+
+  const handleGoToQuestion = (index) => {
+    setCurrentQuestionIndex(index);
+    setIsReviewing(false);
+  };
+
+  const handleSubmit = () => {
+    const candidateData = JSON.parse(localStorage.getItem('candidateData'));
+    const quizData = {
+      candidateInfo: candidateData,
+      questions: questions,
+      answers: answers,
+      result: {
+        score: answers.filter((answer, index) => answer === questions[index].correctAnswer).length,
+        totalQuestions: questions.length,
+        percentage: (answers.filter((answer, index) => answer === questions[index].correctAnswer).length / questions.length) * 100,
+      }
+    };
+    saveData(`candidate_${candidateData.name}_quiz_results`, quizData);
+    navigate('/results');
+  };
+
+  const handleTimeUp = () => {
+    handleSubmit();
+  };
+
+  // Remove the handleTick function as it's no longer needed
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
         </div>
-      ) : !isReady ? ( // {{ If not ready, show Start Quiz button }}
+      </Layout>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <Layout>
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Are you ready to start the quiz?</h2>
           <p className="mb-4">You will have 30 minutes to complete the quiz once you start.</p>
@@ -70,10 +114,36 @@ const Quiz = () => {
             Start Quiz
           </button>
         </div>
-      ) : ( // {{ If ready, display the quiz }}
-        <QuestionDisplay questions={questions} />
-      )}
-    </div>
+      </Layout>
+    );
+  }
+
+  if (isReviewing) {
+    return (
+      <ReviewPage
+        questions={questions}
+        answers={answers}
+        goToQuestion={handleGoToQuestion}
+        handleSubmit={handleSubmit}
+        timeRemaining={timeRemaining}
+      />
+    );
+  }
+
+  return (
+    <Layout>
+      <QuestionDisplay
+        question={questions[currentQuestionIndex]}
+        answer={answers[currentQuestionIndex]}
+        onAnswer={handleAnswer}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        questionNumber={currentQuestionIndex + 1}
+        totalQuestions={questions.length}
+        timeRemaining={timeRemaining}
+        onTimeUp={handleTimeUp}
+        // Remove the onTick prop
+      />
     </Layout>
   );
 };
