@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AnalysisChart from './AnalysisChart'; // Blooms Taxonomy Chart
-import TechnologySpiderChart from './TechnologySpiderChart';
+import AnalysisChart from './AnalysisChart';
 import ErrorBoundary from './ErrorBoundary';
-import { loadData } from '../backend/dataHandler';
+import Layout from './Layout';
+const { loadData } = require('../backend/dataHandler');
+
 
 const ResultPage = () => {
   const [quizResults, setQuizResults] = useState(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +19,7 @@ const ResultPage = () => {
       }
 
       try {
+        const { loadData } = require('../backend/dataHandler');
         const results = loadData(`candidate_${candidateData.name}_quiz_results`);
         if (!results) {
           navigate('/quiz');
@@ -67,61 +68,26 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
     }
   };
 
-  const technologySkills = {
-    'Java Full Stack': {
-      'Core Java': 3,
-      'Advanced Java': 2,
-      'Java Spring': 4,
-      'Java REST': 3,
-      'Architecture': 2,
-      'Data Structures': 3,
-    },
-    // Add other technologies and their respective skills here
-  };
-
-  const handleAdvancedAnalysis = () => {
-    setShowAdvanced(!showAdvanced);
-  };
-
-  const candidateName = quizResults.candidateInfo?.name || 'N/A';
-  const technology = quizResults.candidateInfo?.technology || 'N/A';
-  const score = quizResults.result?.score ?? 0;
-  const totalQuestions = quizResults.result?.totalQuestions ?? 0;
-  const percentage = quizResults.result?.percentage?.toFixed(2) ?? '0';
-
   return (
+    <Layout>
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
-      {percentage >= 75 && (
+      {quizResults.result.percentage >= 75 && (
         <div className="bg-green-500 text-white p-2 rounded mb-4 text-center">
           Selected
         </div>
       )}
       <div className="mb-8">
-        <p>Candidate Name: {candidateName}</p>
-        <p>Technology: {technology}</p>
-        <p>Correct Answers: {score}</p>
-        <p>Incorrect Answers: {totalQuestions - score}</p>
-        <p>Total Questions: {totalQuestions}</p>
-        <p>Score Percentage: {percentage}%</p>
+        <p>Candidate Name: {quizResults.candidateInfo?.name || 'N/A'}</p>
+        <p>Technology: {quizResults.candidateInfo?.technology || 'N/A'}</p>
+        <p>Correct Answers: {quizResults.result?.score || 0}</p>
+        <p>Incorrect Answers: {(quizResults.result?.totalQuestions || 0) - (quizResults.result?.score || 0)}</p>
+        <p>Total Questions: {quizResults.result?.totalQuestions || 0}</p>
+        <p>Score Percentage: {quizResults.result?.percentage?.toFixed(2) || 0}%</p>
       </div>
       <ErrorBoundary fallback={<div>There was an error loading the analysis chart.</div>}>
         <AnalysisChart results={quizResults} />
       </ErrorBoundary>
-      <button
-        onClick={handleAdvancedAnalysis}
-        className="mt-4 bg-purple-500 hover:bg-purple-700 text-white px-6 py-2 rounded"
-      >
-        {showAdvanced ? 'Hide Advanced Analysis' : 'Show Advanced Analysis'}
-      </button>
-      {showAdvanced && technology && technologySkills[technology] && (
-        <ErrorBoundary fallback={<div>There was an error loading the technology spider chart.</div>}>
-          <TechnologySpiderChart
-            technology={technology}
-            skills={technologySkills[technology]}
-          />
-        </ErrorBoundary>
-      )}
       <div className="mt-8 flex justify-center space-x-4">
         <button
           onClick={handlePrint}
@@ -137,6 +103,7 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
         </button>
       </div>
     </div>
+    </Layout>
   );
 };
 

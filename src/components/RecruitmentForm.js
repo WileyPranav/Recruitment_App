@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Layout from './Layout';
 
 const technologies = ['Java Full Stack', 'Python', 'Dev-Ops', 'SRE', 'AI'];
 
@@ -26,7 +27,7 @@ const RecruitmentForm = () => {
     navigate('/quiz');
   };
 
-  return (
+  return (<Layout>    
     <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4">
       <h2 className="text-3xl font-bold mb-6 text-center text-primary-dark">Candidate Information</h2>
       {['name', 'age', 'education', 'location', 'language'].map((field) => (
@@ -72,6 +73,7 @@ const RecruitmentForm = () => {
         Start Quiz
       </button>
     </form>
+    </Layout>
   );
 };
 

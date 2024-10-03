@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/QuestionDisplay';
-import { generateQuestions } from '../utils/api';
+import { generateQuestions, dummyQuestions } from '../utils/api';
+import Layout from '../components/Layout';
 const { saveData } = require('../backend/dataHandler');
 
 const Quiz = () => {
@@ -18,8 +19,10 @@ const Quiz = () => {
           navigate('/recruitment');
           return;
         }
-        const generatedQuestions = await generateQuestions(candidateData.technology); // {{ Ensure 25 questions }}
+       // const generatedQuestions =  dummyQuestions();
+        const generatedQuestions = await generateQuestions(candidateData.technology, 25); // {{ Ensure 25 questions }}
         setQuestions(generatedQuestions);
+
         const questionData = {
           candidateName: candidateData.name,
           technology: candidateData.technology,
@@ -41,10 +44,10 @@ const Quiz = () => {
   };
 
   return (
+    <Layout>
     <div className="container mx-auto px-4 py-8">
       {isLoading ? (
         <div className="flex flex-col items-center justify-center h-screen">
-          The Quiz is Loading......
           <div className="loader mb-4"></div>
           <div className="h-16 overflow-hidden">
             <div className="animate-scroll">
@@ -71,6 +74,7 @@ const Quiz = () => {
         <QuestionDisplay questions={questions} />
       )}
     </div>
+    </Layout>
   );
 };
 
