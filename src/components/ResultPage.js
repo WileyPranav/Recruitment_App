@@ -51,13 +51,16 @@ const ResultPage = () => {
     };
 
     results.questions.forEach((question, index) => {
-      analysis[question.bloomsCategory].total += 1;
-      if (results.answers[index] === question.correctAnswer) {
-        
-        analysis[question.bloomsCategory].correct += 1;
+      const bloomsCategory = question.bloomsCategory || 'Understand'; // Default to 'Understand' if not specified
+      analysis[bloomsCategory].total += 1;
+      
+      // Check if the answer is correct
+      if (results.answers[index] && results.answers[index].answer === question.correctAnswer) {
+        analysis[bloomsCategory].correct += 1;
       }
     });
-    console.log(analysis);
+
+    console.log('Blooms Analysis:', analysis);
     setBloomsAnalysis(analysis);
   };
 
