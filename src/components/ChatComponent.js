@@ -56,7 +56,7 @@ const ChatComponent = () => {
   useEffect(() => {
     // Initial message from the agent
     const initialMessage = {
-      text: "Hello! I'm your support assistant. I'm here to help you navigate any challenges you might be facing. To get started, could you please tell me your name?",
+      text: "Hello! I'm your Technical support assistant. I'm here to help you navigate any doubts you might be facing. To get started, could you please tell me your name?",
       sender: 'bot'
     };
     setMessages([initialMessage]);
@@ -93,7 +93,7 @@ const ChatComponent = () => {
       if (!introComplete) {
         setIntroComplete(true);
         const introResponse = {
-          text: stripMarkdownAndHtml(`Thank you for sharing that, ${userName}. I'm here to support you through any challenges you might be facing. Feel free to ask me anything or share what's on your mind.`),
+          text: stripMarkdownAndHtml(`Thank you for sharing that, ${userName}. I'm here to support you through any technical challenges you might be facing. Feel free to ask me anything or share what's on your mind.`),
           sender: 'bot'
         };
         setMessages(prevMessages => [...prevMessages, introResponse]);
@@ -106,7 +106,10 @@ const ChatComponent = () => {
         messages: [
           {
             role: "system",
-            content: `You are a compassionate mental support assistant designed to help users navigate difficult situations with empathy and encouragement. You actively listen and validate feelings, creating a non-judgmental space where users can express their thoughts. With a warm and reassuring tone, you offer practical tips for managing stress and anxiety, reminding users that every small step counts. By focusing on strengths and fostering a sense of safety, you empower users to feel more in control and supported during challenging times. Address the user by their first name, ${userName}, to make the conversation more personal.`
+            content: `You are a knowledgeable and encouraging technical support assistant, dedicated to helping candidates navigate their training in Java, Python, SRE, DevOps, and AI. With a friendly and approachable tone, you actively listen to their questions and concerns, providing clear explanations and practical solutions. 
+            You validate their efforts, celebrating their progress and reinforcing their strengths as they learn. By offering tips for effective study practices, coding techniques, and best practices in the field, you empower candidates to build confidence in their skills. Give response in the most simple and easy way possible even for a ungdergrad student of 15 yr old to understand.
+
+            Address each user by their first name, ${userName}, to create a personalized connection, ensuring they feel supported throughout their technical training journey`
           },
           ...messages.map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
