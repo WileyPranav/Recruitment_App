@@ -178,55 +178,53 @@ const ChatComponent = () => {
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto p-4 max-w-2xl">
-        <h2 className="text-2xl font-bold mb-4">Chat Support</h2>
-        <div id="chat-container" className="bg-gray-100 p-4 h-96 overflow-y-auto mb-4 rounded">
-          {messages.map((message, index) => (
-            <div key={index} className={`mb-4 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
-              <span className={`inline-block p-2 rounded ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white'}`}>
-                {message.text}
-              </span>
-              {message.sender === 'bot' && (
-                <div className="mt-2 flex justify-start space-x-2">
-                  <button onClick={() => handleLike(index)} className="text-green-500 hover:text-green-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                    </svg>
-                  </button>
-                  <button onClick={() => handleDislike(index)} className="text-red-500 hover:text-red-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01-.8-2.4L6.8 7.933a4 4 0 00-.8-2.4z" />
-                    </svg>
-                  </button>
-                  <button onClick={() => handleRegenerate(index)} className="text-blue-500 hover:text-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-          {isTyping && (
-            <div className="text-left">
-              <span className="inline-block p-2 rounded bg-gray-300">Typing...</span>
-            </div>
-          )}
-        </div>
-        <div className="flex">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-grow p-2 border rounded-l"
-            placeholder="Type your message..."
-          />
-          <button onClick={sendMessage} className="bg-primary text-white p-2 rounded-r">Send</button>
-        </div>
+    <div className="container mx-auto p-4 max-w-2xl">
+      <h2 className="text-2xl font-bold mb-4">Chat Support</h2>
+      <div id="chat-container" className="bg-gray-100 p-4 h-96 overflow-y-auto mb-4 rounded">
+        {messages.map((message, index) => (
+          <div key={index} className={`mb-4 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
+            <span className={`inline-block p-2 rounded ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white'}`}>
+              {message.text}
+            </span>
+            {message.sender === 'bot' && (
+              <div className="mt-2 flex justify-start space-x-2">
+                <button onClick={() => handleLike(index)} className="text-green-500 hover:text-green-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                  </svg>
+                </button>
+                <button onClick={() => handleDislike(index)} className="text-red-500 hover:text-red-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01-.8-2.4L6.8 7.933a4 4 0 00-.8-2.4z" />
+                  </svg>
+                </button>
+                <button onClick={() => handleRegenerate(index)} className="text-blue-500 hover:text-blue-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+        {isTyping && (
+          <div className="text-left">
+            <span className="inline-block p-2 rounded bg-gray-300">Typing...</span>
+          </div>
+        )}
       </div>
-    </Layout>
+      <div className="flex">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          className="flex-grow p-2 border rounded-l"
+          placeholder="Type your message..."
+        />
+        <button onClick={sendMessage} className="bg-primary text-white p-2 rounded-r">Send</button>
+      </div>
+    </div>
   );
 };
 

@@ -4,7 +4,6 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import TechnologySpiderChart from './TechnologySpiderChart';
 import ErrorBoundary from './ErrorBoundary';
-import Layout from './Layout';
 const { loadData } = require('../backend/dataHandler');
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -13,6 +12,7 @@ const ResultPage = () => {
   const [quizResults, setQuizResults] = useState(null);
   const [showSpiderChart, setShowSpiderChart] = useState(false);
   const [bloomsAnalysis, setBloomsAnalysis] = useState({});
+  const [competencies, setCompetencies] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +31,8 @@ const ResultPage = () => {
         }
         setQuizResults(results);
         calculateBloomsAnalysis(results);
+        const calculatedCompetencies = calculateCompetencies(results.questions, results.answers, candidateData.technology);
+        setCompetencies(calculatedCompetencies);
       } catch (error) {
         console.error('Error fetching quiz results:', error);
         navigate('/quiz');
@@ -234,64 +236,58 @@ ${quizResults.questions.map((q, i) => `"${q.text}","${quizResults.answers[i].ans
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
-        {quizResults.result.percentage >= 75 && (
-          <div className="bg-green-500 text-white p-2 rounded mb-4 text-center">
-            Selected
-          </div>
-        )}
-        <div className="mb-8">
-          <p>Candidate Name: {quizResults.candidateInfo?.name || 'N/A'}</p>
-          <p>Technology: {quizResults.candidateInfo?.technology || 'N/A'}</p>
-          <p>Correct Answers: {quizResults.result?.score || 0}</p>
-          <p>Incorrect Answers: {25 - (quizResults.result?.score || 0)}</p>
-          <p>Total Questions: 25</p>
-          <p>Score Percentage: {((quizResults.result?.score || 0) / 25 * 100).toFixed(2)}%</p>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
+      {quizResults.result.percentage >= 75 && (
+        <div className="bg-green-500 text-white p-2 rounded mb-4 text-center">
+          Selected
         </div>
-        <div className="mb-8">
-          <h3 className="text-xl font-bold mb-2">Bloom's Taxonomy Analysis</h3>
-          <div style={{ height: '300px' }}>
-            <Bar data={bloomsChartData} options={bloomsChartOptions} />
-          </div>
-        </div>
-        <div className="mt-8 flex justify-center space-x-4">
-          <button
-            onClick={handleToggleSpiderChart}
-            className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-          >
-            {showSpiderChart ? 'Hide' : 'Show'} Competency Chart
-          </button>
-          <button
-            onClick={handlePrint}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Print Results
-          </button>
-          <button
-            onClick={handleDownload}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Download Data
-          </button>
-        </div>
-        {showSpiderChart && (
-          <ErrorBoundary fallback={<div>There was an error loading the competency chart.</div>}>
-            <div style={{ width: '95%', margin: '10px auto 0' }}>
-              <TechnologySpiderChart 
-                technology={quizResults.candidateInfo.technology} 
-                competencies={calculateCompetencies(
-                  quizResults.questions, 
-                  quizResults.answers, 
-                  quizResults.candidateInfo.technology
-                )}
-              />
-            </div>
-          </ErrorBoundary>
-        )}
+      )}
+      <div className="mb-8">
+        <p>Candidate Name: {quizResults.candidateInfo?.name || 'N/A'}</p>
+        <p>Technology: {quizResults.candidateInfo?.technology || 'N/A'}</p>
+        <p>Correct Answers: {quizResults.result?.score || 0}</p>
+        <p>Incorrect Answers: {25 - (quizResults.result?.score || 0)}</p>
+        <p>Total Questions: 25</p>
+        <p>Score Percentage: {((quizResults.result?.score || 0) / 25 * 100).toFixed(2)}%</p>
       </div>
-    </Layout>
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-2">Bloom's Taxonomy Analysis</h3>
+        <div style={{ height: '300px' }}>
+          <Bar data={bloomsChartData} options={bloomsChartOptions} />
+        </div>
+      </div>
+      <div className="mt-8 flex justify-center space-x-4">
+        <button
+          onClick={handleToggleSpiderChart}
+          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {showSpiderChart ? 'Hide' : 'Show'} Competency Chart
+        </button>
+        <button
+          onClick={handlePrint}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Print Results
+        </button>
+        <button
+          onClick={handleDownload}
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Download Data
+        </button>
+      </div>
+      {showSpiderChart && (
+        <ErrorBoundary fallback={<div>There was an error loading the competency chart.</div>}>
+          <div style={{ width: '95%', margin: '10px auto 0' }}>
+            <TechnologySpiderChart 
+              technology={quizResults.candidateInfo.technology} 
+              competencies={competencies}
+            />
+          </div>
+        </ErrorBoundary>
+      )}
+    </div>
   );
 };
 

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/QuestionDisplay';
 import ReviewPage from '../components/ReviewPage';
 import { generateQuestions } from '../utils/api';
-import Layout from '../components/Layout';
 const { saveData } = require('../backend/dataHandler');
 
 const Quiz = () => {
@@ -93,28 +92,24 @@ const Quiz = () => {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
     );
   }
 
   if (!isReady) {
     return (
-      <Layout>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Are you ready to start the quiz?</h2>
-          <p className="mb-4">You will have 30 minutes to complete the quiz once you start.</p>
-          <button
-            onClick={handleStartQuiz}
-            className="bg-primary text-white px-6 py-3 rounded hover:bg-primary-dark transition duration-300"
-          >
-            Start Quiz
-          </button>
-        </div>
-      </Layout>
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">Are you ready to start the quiz?</h2>
+        <p className="mb-4">You will have 30 minutes to complete the quiz once you start.</p>
+        <button
+          onClick={handleStartQuiz}
+          className="bg-primary text-white px-6 py-3 rounded hover:bg-primary-dark transition duration-300"
+        >
+          Start Quiz
+        </button>
+      </div>
     );
   }
 
@@ -131,20 +126,17 @@ const Quiz = () => {
   }
 
   return (
-    <Layout>
-      <QuestionDisplay
-        question={questions[currentQuestionIndex]}
-        answer={answers[currentQuestionIndex]}
-        onAnswer={handleAnswer}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        questionNumber={currentQuestionIndex + 1}
-        totalQuestions={questions.length}
-        timeRemaining={timeRemaining}
-        onTimeUp={handleTimeUp}
-        // Remove the onTick prop
-      />
-    </Layout>
+    <QuestionDisplay
+      question={questions[currentQuestionIndex]}
+      answer={answers[currentQuestionIndex]}
+      onAnswer={handleAnswer}
+      onNext={handleNext}
+      onPrevious={handlePrevious}
+      questionNumber={currentQuestionIndex + 1}
+      totalQuestions={questions.length}
+      timeRemaining={timeRemaining}
+      onTimeUp={handleTimeUp}
+    />
   );
 };
 
