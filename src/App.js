@@ -9,6 +9,8 @@ import Quiz from './pages/quiz';
 import Results from './pages/results';
 import ChatComponent from './components/ChatComponent';
 import MoodleLMS from './components/MoodleLMS';
+import ContentCreation from './components/ContentCreation';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -56,6 +58,8 @@ function App() {
             <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><ChatComponent /></ProtectedRoute>} />
             <Route path="/moodle" element={<ProtectedRoute><MoodleLMS /></ProtectedRoute>} />
+            <Route path="/content-creation" element={<ProtectedRoute><ContentCreation /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute>{user === 'Admin' ? <AdminDashboard /> : <Navigate to="/" />}</ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

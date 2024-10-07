@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import OpenAI from "openai";
-import Layout from './Layout';
-
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+import axios from 'axios';
 
 const stripMarkdownAndHtml = (text) => {
   // Remove HTML tags
@@ -24,28 +18,6 @@ const stripMarkdownAndHtml = (text) => {
   return stripped.trim();
 };
 
-const extractName = async (input) => {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant that extracts names from text. Respond with only the extracted name."
-        },
-        {
-          role: "user",
-          content: `Extract the name from this text: "${input}"`
-        }
-      ],
-    });
-    return response.choices[0].message.content.trim();
-  } catch (error) {
-    console.error('Error extracting name:', error);
-    return input.split(' ')[0]; // Fallback to first word if API call fails
-  }
-};
-
 const ChatComponent = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -54,7 +26,6 @@ const ChatComponent = () => {
   const [introComplete, setIntroComplete] = useState(false);
 
   useEffect(() => {
-    // Initial message from the agent
     const initialMessage = {
       text: "Hello! I'm your Technical support assistant. I'm here to help you navigate any doubts you might be facing. To get started, could you please tell me your name?",
       sender: 'bot'
@@ -79,7 +50,8 @@ const ChatComponent = () => {
 
     try {
       if (!userName) {
-        const extractedName = await extractName(input);
+        // Extract name logic
+        const extractedName = input.split(' ')[0]; // Simple name extraction
         setUserName(extractedName);
         const nameResponse = {
           text: stripMarkdownAndHtml(`It's nice to meet you, ${extractedName}! Could you tell me a little bit about yourself and what brings you here today?`),
@@ -101,26 +73,20 @@ const ChatComponent = () => {
         return;
       }
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+      // Make API call to your backend
+      const response = await axios.post('/api/chat', {
         messages: [
-          {
-            role: "system",
-            content: `You are a knowledgeable and encouraging technical support assistant, dedicated to helping candidates navigate their training in Java, Python, SRE, DevOps, and AI. With a friendly and approachable tone, you actively listen to their questions and concerns, providing clear explanations and practical solutions. 
-            You validate their efforts, celebrating their progress and reinforcing their strengths as they learn. By offering tips for effective study practices, coding techniques, and best practices in the field, you empower candidates to build confidence in their skills. Give response in the most simple and easy way possible even for a ungdergrad student of 15 yr old to understand.
-
-            Address each user by their first name, ${userName}, to create a personalized connection, ensuring they feel supported throughout their technical training journey`
-          },
           ...messages.map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text
           })),
           { role: "user", content: input }
         ],
+        userName: userName
       });
 
       const botMessage = {
-        text: stripMarkdownAndHtml(response.choices[0].message.content),
+        text: stripMarkdownAndHtml(response.data.message),
         sender: 'bot'
       };
       setMessages(prevMessages => [...prevMessages, botMessage]);
@@ -150,23 +116,19 @@ const ChatComponent = () => {
     if (index === messages.length - 1 && messages[index].sender === 'bot') {
       setIsTyping(true);
       try {
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+        const response = await axios.post('/api/chat', {
           messages: [
-            {
-              role: "system",
-              content: `You are a compassionate mental support assistant designed to help users navigate difficult situations with empathy and encouragement. You actively listen and validate feelings, creating a non-judgmental space where users can express their thoughts. With a warm and reassuring tone, you offer practical tips for managing stress and anxiety, reminding users that every small step counts. By focusing on strengths and fostering a sense of safety, you empower users to feel more in control and supported during challenging times. Address the user by their first name, ${userName}, to make the conversation more personal.`
-            },
             ...messages.slice(0, -1).map(msg => ({
               role: msg.sender === 'user' ? 'user' : 'assistant',
               content: msg.text
             })),
             { role: "user", content: "Please provide a different response to my last message." }
           ],
+          userName: userName
         });
 
         const regeneratedMessage = {
-          text: stripMarkdownAndHtml(response.choices[0].message.content),
+          text: stripMarkdownAndHtml(response.data.message),
           sender: 'bot'
         };
         setMessages(prevMessages => [...prevMessages.slice(0, -1), regeneratedMessage]);

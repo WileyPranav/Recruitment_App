@@ -20,6 +20,13 @@ const Header = ({ user, onLogout }) => (
         >
           Moodle LMS
         </Link>
+        <Link 
+          to={user ? "/content-creation" : "#"} 
+          className={`bg-secondary hover:bg-secondary-dark px-4 py-2 rounded mr-4 ${!user && 'opacity-50 cursor-not-allowed'}`}
+          onClick={(e) => !user && e.preventDefault()}
+        >
+          Content Creation
+        </Link>
         {user ? (
           <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</button>
         ) : (
