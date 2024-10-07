@@ -6,7 +6,11 @@ ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, 
 
 const TechnologySpiderChart = ({ technology, competencies }) => {
   const labels = Object.keys(competencies);
-  const data = Object.values(competencies);
+  const data = labels.map(label => 
+    competencies[label].total > 0 
+      ? (competencies[label].correct / competencies[label].total) * 5 
+      : 0
+  );
 
   const chartData = {
     labels: labels,

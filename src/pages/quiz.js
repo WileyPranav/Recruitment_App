@@ -24,8 +24,13 @@ const Quiz = () => {
           return;
         }
         const generatedQuestions = await generateQuestions(candidateData.technology, 25);
-        setQuestions(generatedQuestions);
-        setAnswers(new Array(generatedQuestions.length).fill(null));
+        // Map each question to a competency
+        const questionsWithCompetencies = generatedQuestions.map(question => ({
+          ...question,
+          competency: mapQuestionToCompetency(question, candidateData.technology)
+        }));
+        setQuestions(questionsWithCompetencies);
+        setAnswers(new Array(questionsWithCompetencies.length).fill(null));
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -34,6 +39,54 @@ const Quiz = () => {
     };
     fetchQuestions();
   }, [navigate]);
+
+  const mapQuestionToCompetency = (question, technology) => {
+    // This function should be implemented to map each question to a competency
+    // based on the question's content and the selected technology
+    // For now, we'll use a simple mapping based on keywords
+    const competencies = getTechnologyCompetencies(technology);
+    const questionText = question.text.toLowerCase();
+    
+    for (const [competency, keywords] of Object.entries(competencies)) {
+      if (keywords.some(keyword => questionText.includes(keyword.toLowerCase()))) {
+        return competency;
+      }
+    }
+    return 'General Knowledge';
+  };
+
+  const getTechnologyCompetencies = (technology) => {
+    switch (technology) {
+      case 'Java Full Stack':
+        return {
+          'Core Java': ['object-oriented', 'inheritance', 'polymorphism', 'encapsulation'],
+          'Advanced Java': ['multithreading', 'collections', 'generics', 'lambda'],
+          'Spring Framework': ['spring', 'dependency injection', 'aop', 'bean'],
+          'RESTful APIs': ['rest', 'api', 'http', 'endpoint'],
+          'Database Management': ['sql', 'database', 'query', 'jdbc'],
+          'Web Development': ['html', 'css', 'javascript', 'servlet', 'jsp']
+        };
+      case 'Python':
+        return {
+          'Core Python': ['data types', 'functions', 'loops', 'comprehensions'],
+          'Data Structures': ['list', 'dictionary', 'tuple', 'set'],
+          'Web Frameworks': ['django', 'flask', 'fastapi'],
+          'Data Analysis': ['pandas', 'numpy', 'data manipulation'],
+          'Machine Learning': ['scikit-learn', 'tensorflow', 'keras'],
+          'API Development': ['rest', 'api', 'http', 'requests']
+        };
+      // ... Add similar mappings for other technologies
+      default:
+        return {
+          'General Knowledge': ['programming', 'algorithm', 'data structure'],
+          'Problem Solving': ['logic', 'efficiency', 'optimization'],
+          'Coding Skills': ['syntax', 'debugging', 'best practices'],
+          'System Design': ['architecture', 'scalability', 'performance'],
+          'Best Practices': ['clean code', 'testing', 'version control'],
+          'Tool Proficiency': ['ide', 'git', 'command line']
+        };
+    }
+  };
 
   const handleStartQuiz = () => {
     setIsReady(true);
@@ -78,10 +131,25 @@ const Quiz = () => {
         score: answers.filter((answer, index) => answer === questions[index].correctAnswer).length,
         totalQuestions: questions.length,
         percentage: (answers.filter((answer, index) => answer === questions[index].correctAnswer).length / questions.length) * 100,
-      }
+      },
+      competencies: calculateCompetencies(questions, answers)
     };
     saveData(`candidate_${candidateData.name}_quiz_results`, quizData);
     navigate('/results');
+  };
+
+  const calculateCompetencies = (questions, answers) => {
+    const competencies = {};
+    questions.forEach((question, index) => {
+      if (!competencies[question.competency]) {
+        competencies[question.competency] = { total: 0, correct: 0 };
+      }
+      competencies[question.competency].total++;
+      if (answers[index] === question.correctAnswer) {
+        competencies[question.competency].correct++;
+      }
+    });
+    return competencies;
   };
 
   const handleTimeUp = () => {

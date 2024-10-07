@@ -31,8 +31,7 @@ const ResultPage = () => {
         }
         setQuizResults(results);
         calculateBloomsAnalysis(results);
-        const calculatedCompetencies = calculateCompetencies(results.questions, results.answers, candidateData.technology);
-        setCompetencies(calculatedCompetencies);
+        setCompetencies(results.competencies);
       } catch (error) {
         console.error('Error fetching quiz results:', error);
         navigate('/quiz');
