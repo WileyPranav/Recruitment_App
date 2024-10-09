@@ -40,6 +40,28 @@ const ChatComponent = () => {
     }
   }, [messages]);
 
+  const extractName = async (input) => {
+    const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+    try {
+      const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a helpful assistant that extracts names from text. Respond with only the extracted name." },
+          { role: "user", content: `Extract the name from this text: "${input}"` }
+        ],
+      }, {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error extracting name:', error);
+      return input.split(' ')[0]; // Fallback to first word if API call fails
+    }
+  };
+
   const sendMessage = async () => {
     if (input.trim() === '') return;
 
@@ -50,8 +72,7 @@ const ChatComponent = () => {
 
     try {
       if (!userName) {
-        // Extract name logic
-        const extractedName = input.split(' ')[0]; // Simple name extraction
+        const extractedName = await extractName(input);
         setUserName(extractedName);
         const nameResponse = {
           text: stripMarkdownAndHtml(`It's nice to meet you, ${extractedName}! Could you tell me a little bit about yourself and what brings you here today?`),
@@ -73,20 +94,30 @@ const ChatComponent = () => {
         return;
       }
 
-      // Make API call to your backend
-      const response = await axios.post('/api/chat', {
+      const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+      
+      const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+        model: "gpt-4o-mini",
         messages: [
+          {
+            role: "system",
+            content: `You are a knowledgeable and encouraging technical support assistant, dedicated to helping candidates navigate their training in Java, Python, SRE, DevOps, and AI. Address the user as ${userName}. Provide responses in an easy-to-understand bullet point format, using simple language suitable for beginners in the domain. Start each main point with a • and use - for sub-points if needed.`
+          },
           ...messages.map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text
           })),
           { role: "user", content: input }
         ],
-        userName: userName
+      }, {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const botMessage = {
-        text: stripMarkdownAndHtml(response.data.message),
+        text: stripMarkdownAndHtml(response.data.choices[0].message.content),
         sender: 'bot'
       };
       setMessages(prevMessages => [...prevMessages, botMessage]);
@@ -146,7 +177,9 @@ const ChatComponent = () => {
         {messages.map((message, index) => (
           <div key={index} className={`mb-4 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
             <span className={`inline-block p-2 rounded ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white'}`}>
-              {message.text}
+              {message.text.split('\n').map((line, i) => (
+                <p key={i} className="mb-1">{line}</p>
+              ))}
             </span>
             {message.sender === 'bot' && (
               <div className="mt-2 flex justify-start space-x-2">
