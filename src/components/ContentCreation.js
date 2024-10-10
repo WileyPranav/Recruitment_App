@@ -5,6 +5,7 @@ const ContentCreation = () => {
   const [jobDescription, setJobDescription] = useState('');
   const [duration, setDuration] = useState('');
   const [technology, setTechnology] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
   const [courseStructure, setCourseStructure] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,7 +16,7 @@ const ContentCreation = () => {
     setError(null);
 
     try {
-      const generatedStructure = await generateCourseStructure(jobDescription, duration, technology);
+      const generatedStructure = await generateCourseStructure(jobDescription, duration, technology, targetAudience);
       setCourseStructure(generatedStructure);
     } catch (error) {
       console.error('Error generating course structure:', error);
@@ -63,6 +64,21 @@ const ContentCreation = () => {
             required
           />
         </div>
+        <div className="mb-4">
+          <label htmlFor="targetAudience" className="block mb-2">Target Audience</label>
+          <select
+            id="targetAudience"
+            value={targetAudience}
+            onChange={(e) => setTargetAudience(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Select Target Audience</option>
+            <option value="Regular Graduates">Developers</option>
+            <option value="Mid Management">Mid Management</option>
+            <option value="Business Leaders">Business Leaders</option>
+          </select>
+        </div>
         <button 
           type="submit" 
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
@@ -80,7 +96,7 @@ const ContentCreation = () => {
 
       {courseStructure && (
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Generated Course Structure</h2>
+          <h2 className="text-2xl font-bold mb-4">{courseStructure.title}</h2>
           
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-2">Course Overview</h3>
@@ -99,6 +115,24 @@ const ContentCreation = () => {
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-2">Technology Overview</h3>
             <p className="whitespace-pre-line">{courseStructure.technologyOverview}</p>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-2">Prerequisites</h3>
+            <ul className="list-disc pl-5">
+              {courseStructure.prerequisites.map((prereq, index) => (
+                <li key={index}>{prereq}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-2">System Requirements</h3>
+            <ul className="list-disc pl-5">
+              {courseStructure.systemRequirements.map((req, index) => (
+                <li key={index}>{req}</li>
+              ))}
+            </ul>
           </div>
 
           {courseStructure.weeks.map((week, weekIndex) => (
