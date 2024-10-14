@@ -29,7 +29,7 @@ const RecruitmentForm = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-3xl font-bold mb-6 text-center text-primary-dark">Candidate Information</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-purple-800">Candidate Information</h2>
         {['name', 'age', 'education', 'location', 'language'].map((field) => (
           <div key={field} className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={field}>
@@ -68,7 +68,7 @@ const RecruitmentForm = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
         >
           Start Quiz
         </button>

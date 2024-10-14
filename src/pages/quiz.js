@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/QuestionDisplay';
 import ReviewPage from '../components/ReviewPage';
@@ -15,30 +15,36 @@ const Quiz = () => {
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const candidateData = JSON.parse(localStorage.getItem('candidateData'));
-        if (!candidateData || !candidateData.technology) {
-          navigate('/recruitment');
-          return;
-        }
-        const generatedQuestions = await generateQuestions(candidateData.technology, 25);
-        // Map each question to a competency
-        const questionsWithCompetencies = generatedQuestions.map(question => ({
-          ...question,
-          competency: mapQuestionToCompetency(question, candidateData.technology)
-        }));
-        setQuestions(questionsWithCompetencies);
-        setAnswers(new Array(questionsWithCompetencies.length).fill(null));
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-        setIsLoading(false);
+  const fetchQuestions = useCallback(async () => {
+    try {
+      const candidateData = JSON.parse(localStorage.getItem('candidateData'));
+      if (!candidateData || !candidateData.technology) {
+        navigate('/recruitment');
+        return;
       }
-    };
-    fetchQuestions();
+      const generatedQuestions = await generateQuestions(candidateData.technology, 30);
+      
+      // Randomly select 25 questions
+      const shuffled = generatedQuestions.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 25);
+      
+      // Map each question to a competency
+      const questionsWithCompetencies = selected.map(question => ({
+        ...question,
+        competency: mapQuestionToCompetency(question, candidateData.technology)
+      }));
+      setQuestions(questionsWithCompetencies);
+      setAnswers(new Array(questionsWithCompetencies.length).fill(null));
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      setIsLoading(false);
+    }
   }, [navigate]);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   const mapQuestionToCompetency = (question, technology) => {
     // This function should be implemented to map each question to a competency
@@ -161,19 +167,19 @@ const Quiz = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   if (!isReady) {
     return (
-      <div className="text-center">
+      <div className="text-center p-8">
         <h2 className="text-2xl font-bold mb-4">Are you ready to start the quiz?</h2>
         <p className="mb-4">You will have 30 minutes to complete the quiz once you start.</p>
         <button
           onClick={handleStartQuiz}
-          className="bg-primary text-white px-6 py-3 rounded hover:bg-primary-dark transition duration-300"
+          className="bg-purple-600 text-white px-6 py-3 rounded hover:bg-purple-700 transition duration-300"
         >
           Start Quiz
         </button>
