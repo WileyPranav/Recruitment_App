@@ -42,7 +42,7 @@ function App() {
       <Router>
         <div className="App flex flex-col min-h-screen">
           <Header user={user} onLogout={handleLogout} />
-          <main className="flex-grow">
+          <main className="flex-grow container mx-auto px-4 py-8">
             {showLoginPrompt && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white p-6 rounded-lg shadow-xl">

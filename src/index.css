@@ -50,3 +50,42 @@ code {
 main {
   flex: 1;
 }
+
+/* Add these styles to the end of your existing index.css file */
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.flex-col-mobile {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+.w-full-mobile {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .w-full-mobile {
+    width: auto;
+  }
+}
+
+.mb-4-mobile {
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mb-4-mobile {
+    margin-bottom: 0;
+  }
+}

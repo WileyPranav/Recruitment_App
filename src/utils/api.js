@@ -1,12 +1,64 @@
 import axios from 'axios';
 
-export const generateQuestions = async (technology) => {
-  const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
-  if (!apiKey) {
+const technologyCompetencies = {
+  'Java Full Stack': [
+    'Core Java',
+    'Advanced Java',
+    'Spring Framework',
+    'RESTful APIs',
+    'Database Management',
+    'Web Development'
+  ],
+  'Python': [
+    'Core Python',
+    'Data Structures',
+    'Web Frameworks',
+    'Data Analysis',
+    'Machine Learning',
+    'API Development'
+  ],
+  'Dev-Ops': [
+    'CI/CD',
+    'Containerization',
+    'Cloud Platforms',
+    'Infrastructure as Code',
+    'Monitoring and Logging',
+    'Security'
+  ],
+  'SRE': [
+    'System Design',
+    'Reliability Engineering',
+    'Performance Optimization',
+    'Incident Management',
+    'Automation',
+    'Capacity Planning'
+  ],
+  'AI': [
+    'Machine Learning',
+    'Deep Learning',
+    'Natural Language Processing',
+    'Computer Vision',
+    'Data Preprocessing',
+    'Model Deployment'
+  ]
+};
+
+export const generateQuestions = async (technology) => {
+  if (!OPENAI_API_KEY) {
     console.error('OpenAI API key is not set. Please check your .env file.');
     throw new Error('OpenAI API key is not set');
   }
+
+  const competencies = technologyCompetencies[technology] || [
+    'General Knowledge',
+    'Problem Solving',
+    'Coding Skills',
+    'System Design',
+    'Best Practices',
+    'Tool Proficiency'
+  ];
 
   const prompt = `Generate 30 multiple-choice questions for a ${technology} interview. Focus on the core technology. 
   The questions should increase in difficulty and be divided into Bloom's Taxonomy categories: 
@@ -14,8 +66,12 @@ export const generateQuestions = async (technology) => {
   If the question is related to coding then have 4 sample codes to select from, and these 4 options should have a correct solution as well.
 
   Make the questions scenario-based rather than having direct answers. like Comprehension, Application, Analysis, Evaluation, and Creation.
+
+  For each question, assign one of the following competencies:
+  ${competencies.join(', ')}
+
   Format the response as a JSON array of objects, each containing: 
-  id, text, options (array of 4 choices), correctAnswer, difficulty (easy, medium, hard), and bloomsCategory.`;
+  id, text, options (array of 4 choices), correctAnswer, difficulty (easy, medium, hard), bloomsCategory, and competency.`;
 
   try {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -23,7 +79,7 @@ export const generateQuestions = async (technology) => {
       messages: [{ role: "user", content: prompt }],
     }, {
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
     });

@@ -4,7 +4,7 @@ import Timer from './Timer';
 
 const ReviewPage = ({ questions, answers, goToQuestion, handleSubmit, timeRemaining }) => {
   return (
-    <Layout>
+    
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-4">Review Your Answers</h2>
         <Timer initialTime={timeRemaining} onTimeUp={handleSubmit} />
@@ -28,7 +28,7 @@ const ReviewPage = ({ questions, answers, goToQuestion, handleSubmit, timeRemain
           Submit Quiz
         </button>
       </div>
-    </Layout>
+    
   );
 };
 
