@@ -31,7 +31,8 @@ const ResultPage = () => {
         }
         setQuizResults(results);
         calculateBloomsAnalysis(results);
-        setCompetencies(results.competencies);
+        const calculatedCompetencies = calculateCompetencies(results.questions, results.answers, candidateData.technology);
+        setCompetencies(calculatedCompetencies);
       } catch (error) {
         console.error('Error fetching quiz results:', error);
         navigate('/quiz');
@@ -65,27 +66,21 @@ const ResultPage = () => {
 
   const calculateCompetencies = (questions, answers, technology) => {
     const competencies = getTechnologyCompetencies(technology);
-    const totalQuestions = {};
-    const correctAnswers = {};
-    
-    Object.keys(competencies).forEach(key => {
-      totalQuestions[key] = 0;
-      correctAnswers[key] = 0;
-    });
     
     questions.forEach((question, index) => {
-      const category = question.category || 'General';
-      if (competencies.hasOwnProperty(category)) {
-        totalQuestions[category]++;
-        if (answers[index] === question.correctAnswer) {
-          correctAnswers[category]++;
-        }
+      const category = question.competency || 'General Knowledge';
+      if (!competencies[category]) {
+        competencies[category] = { total: 0, correct: 0 };
+      }
+      competencies[category].total++;
+      if (answers[index] === question.correctAnswer) {
+        competencies[category].correct++;
       }
     });
     
     Object.keys(competencies).forEach(key => {
-      competencies[key] = totalQuestions[key] > 0 
-        ? (correctAnswers[key] / totalQuestions[key]) * 5 
+      competencies[key] = competencies[key].total > 0 
+        ? (competencies[key].correct / competencies[key].total) * 5 
         : 0;
     });
     

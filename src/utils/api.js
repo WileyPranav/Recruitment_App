@@ -8,9 +8,9 @@ export const generateQuestions = async (technology) => {
     throw new Error('OpenAI API key is not set');
   }
 
-  const prompt = `Generate 30 multiple-choice questions for a ${technology} interview. Focuson the core technology. 
+  const prompt = `Generate 30 multiple-choice questions for a ${technology} interview. Focus on the core technology. 
   The questions should increase in difficulty and be divided into Bloom's Taxonomy categories: 
-  Remember, Understand, Apply, Analyze, and Create. Make sure all the questions that you give have 4 options. includine relevant coding & debugging questions in this. 
+  Remember, Understand, Apply, Analyze, and Create. Make sure all the questions that you give have 4 options. Include relevant coding & debugging questions in this. 
   If the question is related to coding then have 4 sample codes to select from, and these 4 options should have a correct solution as well.
 
   Make the questions scenario-based rather than having direct answers. like Comprehension, Application, Analysis, Evaluation, and Creation.

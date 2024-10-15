@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/QuestionDisplay';
 import ReviewPage from '../components/ReviewPage';
-import { generateQuestions } from '../utils/api';
 const { saveData } = require('../backend/dataHandler');
 
 const Quiz = () => {
@@ -15,31 +14,30 @@ const Quiz = () => {
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
   const navigate = useNavigate();
 
-  const fetchQuestions = useCallback(async () => {
-    try {
-      const candidateData = JSON.parse(localStorage.getItem('candidateData'));
-      if (!candidateData || !candidateData.technology) {
-        navigate('/recruitment');
-        return;
-      }
-      const generatedQuestions = await generateQuestions(candidateData.technology, 30);
-      
-      // Randomly select 25 questions
-      const shuffled = generatedQuestions.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 25);
-      
-      // Map each question to a competency
-      const questionsWithCompetencies = selected.map(question => ({
-        ...question,
-        competency: mapQuestionToCompetency(question, candidateData.technology)
-      }));
-      setQuestions(questionsWithCompetencies);
-      setAnswers(new Array(questionsWithCompetencies.length).fill(null));
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-      setIsLoading(false);
+  const fetchQuestions = useCallback(() => {
+    const storedQuestions = localStorage.getItem('quizQuestions');
+    const candidateData = JSON.parse(localStorage.getItem('candidateData'));
+    
+    if (!storedQuestions || !candidateData) {
+      navigate('/recruitment');
+      return;
     }
+    
+    const parsedQuestions = JSON.parse(storedQuestions);
+    
+    // Randomly select 25 questions
+    const shuffled = parsedQuestions.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 25);
+    
+    // Map each question to a competency
+    const questionsWithCompetencies = selected.map(question => ({
+      ...question,
+      competency: mapQuestionToCompetency(question, candidateData.technology)
+    }));
+    
+    setQuestions(questionsWithCompetencies);
+    setAnswers(new Array(questionsWithCompetencies.length).fill(null));
+    setIsLoading(false);
   }, [navigate]);
 
   useEffect(() => {
