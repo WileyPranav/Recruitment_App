@@ -64,86 +64,24 @@ const ResultPage = () => {
     setBloomsAnalysis(analysis);
   };
 
-  const calculateCompetencies = (questions, answers, technology) => {
-    const competencies = getTechnologyCompetencies(technology);
-    
+  const calculateCompetencies = (questions, answers) => {
+    const competenciesScore = {};
     questions.forEach((question, index) => {
-      const category = question.competency || 'General Knowledge';
-      if (!competencies[category]) {
-        competencies[category] = { total: 0, correct: 0 };
+      if (!competenciesScore[question.competency]) {
+        competenciesScore[question.competency] = { correct: 0, total: 0 };
       }
-      competencies[category].total++;
+      competenciesScore[question.competency].total += 1;
       if (answers[index] === question.correctAnswer) {
-        competencies[category].correct++;
+        competenciesScore[question.competency].correct += 1;
       }
     });
-    
-    Object.keys(competencies).forEach(key => {
-      competencies[key] = competencies[key].total > 0 
-        ? (competencies[key].correct / competencies[key].total) * 5 
-        : 0;
-    });
-    
-    return competencies;
-  };
 
-  const getTechnologyCompetencies = (technology) => {
-    switch (technology) {
-      case 'Java Full Stack':
-        return {
-          'Core Java': 0,
-          'Advanced Java': 0,
-          'Spring Framework': 0,
-          'RESTful APIs': 0,
-          'Database Management': 0,
-          'Web Development': 0
-        };
-      case 'Python':
-        return {
-          'Core Python': 0,
-          'Data Structures': 0,
-          'Web Frameworks': 0,
-          'Data Analysis': 0,
-          'Machine Learning': 0,
-          'API Development': 0
-        };
-      case 'Dev-Ops':
-        return {
-          'CI/CD': 0,
-          'Containerization': 0,
-          'Cloud Platforms': 0,
-          'Infrastructure as Code': 0,
-          'Monitoring and Logging': 0,
-          'Security': 0
-        };
-      case 'SRE':
-        return {
-          'System Design': 0,
-          'Reliability Engineering': 0,
-          'Performance Optimization': 0,
-          'Incident Management': 0,
-          'Automation': 0,
-          'Capacity Planning': 0
-        };
-      case 'AI':
-        return {
-          'Machine Learning': 0,
-          'Deep Learning': 0,
-          'Natural Language Processing': 0,
-          'Computer Vision': 0,
-          'Data Preprocessing': 0,
-          'Model Deployment': 0
-        };
-      default:
-        return {
-          'General Knowledge': 0,
-          'Problem Solving': 0,
-          'Coding Skills': 0,
-          'System Design': 0,
-          'Best Practices': 0,
-          'Tool Proficiency': 0
-        };
-    }
+    const normalizedCompetencies = {};
+    Object.entries(competenciesScore).forEach(([competency, score]) => {
+      normalizedCompetencies[competency] = (score.correct / score.total) * 5; // Normalize to 0-5 scale
+    });
+
+    return normalizedCompetencies;
   };
 
   if (!quizResults) {

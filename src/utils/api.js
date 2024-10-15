@@ -88,8 +88,13 @@ export const generateQuestions = async (technology) => {
     const jsonStart = content.indexOf('[');
     const jsonEnd = content.lastIndexOf(']') + 1;
     const jsonString = content.slice(jsonStart, jsonEnd);
-    console.log(jsonString);
-    return JSON.parse(jsonString);
+    const questions = JSON.parse(jsonString);
+
+    // Ensure each question has a valid competency
+    return questions.map(question => ({
+      ...question,
+      competency: competencies.includes(question.competency) ? question.competency : competencies[0]
+    }));
   } catch (error) {
     console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
     throw error;
